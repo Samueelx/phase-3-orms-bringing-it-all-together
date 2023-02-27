@@ -69,4 +69,26 @@ class Dog
         SQL
         DB[:conn].execute(sql, id).map {|row| self.new_from_db(row)}.first
     end
+
+    def self.find_or_create_by(name: , breed: )
+        #Query to fetch the dog with the name and breed specified
+        sql = <<-SQL
+        SELECT * FROM dogs WHERE name = ? AND breed = ? LIMIT 1;
+        SQL
+        dog = DB[:conn].execute(sql, name, breed).map {|row| self.new_from_db(row)}.first
+
+        instance = if dog != nil
+            dog
+        else self.create(name: name, breed: breed)
+        end
+        instance
+    end
+
+    def update
+        #query to update a certain row
+        sql = <<-SQL
+        UPDATE dogs SET name = ? WHERE id = ?
+        SQL
+        DB[:conn].execute(sql, self.name, self.id)
+    end
 end
